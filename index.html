@@ -7,7 +7,7 @@
     <title>Black & White Spa</title>
 
     <link rel="stylesheet" href="/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/style.css">
 
 </head>
 
@@ -17,12 +17,11 @@
         <div class="row d-table-cell align-middle">
             <div class="col-14 m-auto">
                 <h1 class="text-center">Black and White Spa</h1>
-                <img src="/landscape2.jpg" class="mx-auto d-block" alt="" id="imagen" name="imagen">
             </div>
             <form class="col-6 m-auto" action="/cargar" method="GET">
                 <div class="form-group">
                     <label class="mb-1">Image URL:</label>
-                    <input type="text" class="form-control" id="url" name="url">
+                    <input type="text" class="form-control" id="imagen" name="imagen" required>
                 </div>
                 <button type="submit" class="btn btn-secondary container my-3" id="boton">Subir imagen al servidor</button>
             </form>

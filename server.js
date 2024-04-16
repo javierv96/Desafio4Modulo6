@@ -1,41 +1,52 @@
 const express = require('express');
+const uuid = require('uuid');
 const Jimp = require('jimp');
+const fs = require('fs')
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
-app.use(express.static(__dirname + '/assets/img'));
+app.use(express.static("public"));
 app.use("/bootstrap", express.static(__dirname + "/node_modules/bootstrap/dist/css"));
-app.use('/css', express.static(__dirname + '/assets/css'));
 
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html")
 })
 
 app.get("/cargar", async (req, res) => {
+    const { imagen } = req.query
 
     try {
-        const newUuid = uuid.v4().slice(0, 6);
-
-        const { imagen, url } = req.query;
-        const imagenProcesada = await Jimp.read(url);
-
-        imagenProcesada.resize(350, 350);
-        imagenProcesada.greyscale();
-
-        imagenProcesada.getBuffer(Jimp.newUuid, (err, buffer) => {
+        const imagenGuardada = await Jimp.read(
+            `${imagen}`
+        )
+        const nombreAleatoreo = `${uuid.v4().slice(0, 6)}.jpeg`
+        imagenGuardada
+            .resize(350, Jimp.AUTO)
+            .greyscale()
+            .write(`${nombreAleatoreo}`)
+        imagenGuardada.getBuffer(Jimp.MIME_JPEG, (err, buffer) => {
             if (err) {
                 throw err;
             }
 
-            res.set('Content-Type', Jimp.newUuid);
+            // Configurar el encabezado de respuesta
+            res.set('Content-Type', Jimp.MIME_JPEG);
 
+            // Enviar la imagen redimensionada como respuesta
             res.send(buffer);
+            console.log("Nombre de la nueva imagen almacenada: ", nombreAleatoreo);
         });
-        
+
     } catch (error) {
-        console.log('Error al procesar la imagen: ', error);
-        res.status(500).send('Error interno del servidor');
+
+        if(error.code == "ENOENT"){
+            console.error("La imagen no existe");
+            res.status(404).send("La imagen no existe en el servidor");
+        }
+
+        console.error("Error al procesar la imagen:", error);
+        res.status(500).send("Ocurrió un error al procesar la imagen.");
     }
 })
 
