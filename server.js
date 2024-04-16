@@ -1,7 +1,6 @@
 const express = require('express');
 const uuid = require('uuid');
 const Jimp = require('jimp');
-const fs = require('fs')
 
 const app = express();
 const PORT = 3000;
@@ -40,10 +39,10 @@ app.get("/cargar", async (req, res) => {
 
     } catch (error) {
 
-        if(error.code == "ENOENT"){
-            console.error("La imagen no existe");
-            res.status(404).send("La imagen no existe en el servidor");
-        }
+        // if(error.code == "ENOENT"){
+        //     console.error("La imagen no existe");
+        //     res.status(404).send("La imagen no existe en el servidor");
+        // }
 
         console.error("Error al procesar la imagen:", error);
         res.status(500).send("Ocurrió un error al procesar la imagen.");
