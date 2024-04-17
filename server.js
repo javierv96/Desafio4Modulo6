@@ -17,54 +17,63 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html")
 })
 
+const btn = `<button><a href="http://localhost:3000/">Volver</a></button>`;
+
 // Ruta para procesar y redimensionar imágenes
 app.get("/cargar", async (req, res) => {
     const { imagen } = req.query; // Se obtiene el contenido del input traido desde la consulta
 
     try {
-        // Se intenta leer la imagen utilizando Jimp
-        const imagenGuardada = await Jimp.read(`${imagen}`);
 
-        // Generación de un nombre aleatorio para la imagen redimensionada
-        const nombreAleatoreo = `${uuid.v4().slice(0, 6)}.jpeg`;
+        if (imagen == "") {
+            const error= "Debe completar el campo";
+            console.log(error);
+            res.status(400).send(`${error} ${btn}`);
+        } else {
+            // Se intenta leer la imagen utilizando Jimp
+            const imagenGuardada = await Jimp.read(`${imagen}`);
 
-        // Redimensionamiento y conversión de la imagen a escala de grises
-        imagenGuardada
-            .resize(350, Jimp.AUTO)
-            .greyscale()
-            .write(`${nombreAleatoreo}`);
+            // Generación de un nombre aleatorio para la imagen redimensionada
+            const nombreAleatoreo = `${uuid.v4().slice(0, 6)}.jpeg`;
 
-        // Se obtiene el buffer de la imagen redimensionada
-        imagenGuardada.getBuffer(Jimp.MIME_JPEG, (err, buffer) => {
-            if (err) {
-                throw err;
-            }
+            // Redimensionamiento y conversión de la imagen a escala de grises
+            imagenGuardada
+                .resize(350, Jimp.AUTO)
+                .greyscale()
+                .write(`${nombreAleatoreo}`);
 
-            // Configuración del encabezado de respuesta
-            res.set('Content-Type', Jimp.MIME_JPEG);
+            // Se obtiene el buffer de la imagen redimensionada
+            imagenGuardada.getBuffer(Jimp.MIME_JPEG, (err, buffer) => {
+                if (err) {
+                    throw err;
+                }
 
-            // Envío de la imagen redimensionada como respuesta
-            res.send(buffer);
-            console.log("Nombre de la nueva imagen almacenada: ", nombreAleatoreo);
-        });
+                // Configuración del encabezado de respuesta
+                res.set('Content-Type', Jimp.MIME_JPEG);
+
+                // Envío de la imagen redimensionada como respuesta
+                res.send(buffer);
+                console.log("Nombre de la nueva imagen almacenada: ", nombreAleatoreo);
+            });
+        }
 
     } catch (error) {
         // Manejo de errores posibles durante el procesamiento de la imagen
         if (error.code == 'ENOENT') {
             console.error("La imagen no existe");
-            res.status(404).send("La imagen no existe en el servidor");
+            res.status(404).send("La imagen no existe en el servidor " + btn);
 
         } else if (error == 'Error: Unsupported MIME type: image/webp') {
             console.error("Formato .webp no válido: ", error);
-            res.status(400).send("Jimp no soporta formato .webp, intente con jpg, png, bmp, gif o tiff");
+            res.status(400).send("Jimp no soporta formato .webp, intente con jpg, png, bmp, gif o tiff " + btn);
 
         } else if (error == 'Error: Unsupported MIME type: image/avif') {
             console.error("Formato .avif no válido: ", error);
-            res.status(400).send("Jimp no soporta formato .avif, intente con jpg, png, bmp, gif o tiff");
+            res.status(400).send("Jimp no soporta formato .avif, intente con jpg, png, bmp, gif o tiff " + btn);
 
         } else {
             console.error("Error al procesar la imagen:", error);
-            res.status(500).send("Ocurrió un error al procesar la imagen.");
+            res.status(500).send("Ocurrió un error al procesar la imagen " + btn);
         }
     }
 })
